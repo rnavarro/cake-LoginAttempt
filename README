@@ -1,0 +1,28 @@
+Expire takes the form of a DateInterval object:
+http://us3.php.net/manual/en/dateinterval.construct.php
+
+To create the schema use
+cake schema create --plugin LoginAttempt
+
+Don't forget to add:
+
+CakePlugin::load('LoginAttempt');
+
+To your bootstrap.php
+
+Example usage:
+
+public function login() {
+	if($this->request->is('post')) {
+		$action = 'login_'.urlencode($this->request->data['User']['email']);
+		if($this->LoginAttempt->allowAccess($action,3)) {
+			if($this->Auth->login()) {
+				$this->LoginAttempt->reset($action);
+				$this->redirect($this->Auth->redirect());
+			} else {
+				$this->LoginAttempt->fail($action,'T15M');
+				$this->Session->setFlash(__('Login failed. Invalid email or password'), 'default', array(), 'auth');
+			}
+		}
+	}
+}
